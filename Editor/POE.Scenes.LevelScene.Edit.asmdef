@@ -1,0 +1,18 @@
+{
+  "name": "POE.Scenes.LevelScene.Edit",
+  "rootNamespace": "",
+  "references": [
+    "GUID:530d33a1f61942a5ba8f03b7c8389b82"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

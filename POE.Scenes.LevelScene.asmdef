@@ -1,0 +1,26 @@
+{
+    "name": "POE.Scenes.LevelScene",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
+        "GUID:4692c0319cb97434687fea4df27cb9f8",
+        "GUID:dfdd1c7ae7aa69e4595ac0bac7f3394e",
+        "GUID:2b2277e6ef464a8418a3c0c9d600867c",
+        "GUID:b817c16da43640919bc012e41b9065be",
+        "GUID:4358c4dce9c7ae2468c81096b356debe",
+        "GUID:8493ac436d9f4b143b0f2fc457f3e145",
+        "GUID:e8464d9f9a4c4e9981b8611f93340262",
+        "GUID:97b9f34dd1b327040ac3ca644f9964b0",
+        "GUID:6bc4269789774046ab20ce1233758e63",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
