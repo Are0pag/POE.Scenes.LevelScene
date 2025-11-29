@@ -15,6 +15,9 @@ namespace Scenes.Scenes.LevelScene
             Container.Bind<GridController>().FromInstance(_gridController).AsSingle();
             Container.Bind<CameraController>().FromInstance(_cameraController).AsSingle();
             Container.Bind<LevelSceneController>().FromInstance(_levelSceneController).AsSingle();
+            
+            Container.BindInterfacesAndSelfTo<FocusTargetHandler>().AsSingle();
+            Container.BindInterfacesAndSelfTo<SwapContextSettingsRequestHandler>().AsSingle();
         }
     }
 }

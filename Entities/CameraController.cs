@@ -1,7 +1,6 @@
-using System.Linq;
+using POE.Systems.Camera.LocationView;
 using Scripts.Services.EventBus;
 using Scripts.Systems.Camera.LocationView;
-using Scripts.Systems.GridMovement;
 using Scripts.Tools.AsyncOperationsHandle;
 using Scripts.Tools.Attributes;
 using UnityEngine;
@@ -9,14 +8,14 @@ using Zenject;
 
 namespace Scripts.Scenes.LevelScene
 {
-    internal class CameraController : MonoBehaviour, ISwapContextSettingsRequestHandler, IFocusTargetRequestHandler, ITargetChangeNotification
+    public class CameraController : MonoBehaviour
     {
         internal protected ViewModule ViewModule { get; protected set; }
-        protected GridController _gridController;
-        protected readonly AsyncOperationHandlerInitialized _zoomOperationHandler = new AsyncOperationHandlerInitialized();
-        protected readonly AsyncOperationHandlerInitialized _viewOperationHandler = new AsyncOperationHandlerInitialized();
+        protected private GridController _gridController;
 
-        protected IFocusTargetContainer _focusTargetContainer;
+        protected readonly AsyncOperationHandlerInitialized _zoomOperationHandler = new();
+        protected readonly AsyncOperationHandlerInitialized _viewOperationHandler = new();
+
         protected LocationViewDataAdapter _locationViewDataAdapter;
 
         [Inject]
@@ -26,19 +25,18 @@ namespace Scripts.Scenes.LevelScene
             _locationViewDataAdapter = locationViewDataAdapter;
         }
 
-        
         [InspectorButton(ExecutingMode.IsPlayingOnly)]
-        internal void SetSwapState() {
+        public void SetSwapState() {
             ViewModule.SetState(ViewModule.SwapState);
         }
 
         [InspectorButton(ExecutingMode.IsPlayingOnly)]
-        internal void SetFocusState() {
+        public void SetFocusState() {
             ViewModule.SetState(ViewModule.FocusState);
         }
 
         [InspectorButton(ExecutingMode.IsPlayingOnly)]
-        internal async void ViewLocation() {
+        public async void ViewLocation() {
             if (_viewOperationHandler.IsRunning)
                 return;
 
@@ -51,7 +49,21 @@ namespace Scripts.Scenes.LevelScene
         }
 
         [InspectorButton(ExecutingMode.IsPlayingOnly)]
-        internal async void ZoomIn() {
+        public async void SkipViewLocation() {
+            if (!_viewOperationHandler.IsRunning)
+                return;
+
+            _viewOperationHandler.Cancel();
+            
+            EventBus<IExternalLocationViewEventSubscriber>
+               .RaiseEvent<ISkipFreeViewHandler>(h => h.OnSkip(_viewOperationHandler));
+
+
+            await _viewOperationHandler.RunAsync();
+        }
+
+        [InspectorButton(ExecutingMode.IsPlayingOnly)]
+        public async void ZoomIn() {
             if (_zoomOperationHandler.IsRunning)
                 return;
 
@@ -60,47 +72,12 @@ namespace Scripts.Scenes.LevelScene
         }
 
         [InspectorButton(ExecutingMode.IsPlayingOnly)]
-        internal async void ZoomOut() {
+        public async void ZoomOut() {
             if (_zoomOperationHandler.IsRunning)
                 return;
 
             EventBus<IExternalLocationViewEventSubscriber>.RaiseEvent<IZoomHandler>(h => h.ZoomOut(_zoomOperationHandler));
             await _zoomOperationHandler.RunAsync();
-        }
-        
-
-        void ISwapContextSettingsRequestHandler.GetContextSettings(ISwapContextContainer container) {
-            container.SwapContextSettings = new SwapContextSettings(
-                leftMapSideX: _gridController.Map.MapInfo.First().Key.x,
-                rightMapSideX: _gridController.Map.MapInfo.Last().Key.x,
-                upperMapSideY: _gridController.Map.UpperSideMapY,
-                lowerMapSideY: _gridController.Map.LowerSideMapY);
-        }
-
-        private void OnEnable() {
-            EventBus<IExternalLocationViewEventSubscriber>.Subscribe(this);
-            EventBus<IExternalGridMovementSubscriber>.Subscribe(this);
-        }
-
-        private void OnDisable() {
-            EventBus<IExternalLocationViewEventSubscriber>.Unsubscribe(this);
-            EventBus<IExternalGridMovementSubscriber>.Unsubscribe(this);
-        }
-
-        void IFocusTargetRequestHandler.GetTarget(IFocusTargetContainer focusTargetContainer) {
-            if (_gridController.GridContent.SelectedHero == null) {
-                EventBus<IExternalLevelSceneSubscriber>.
-                    RaiseEvent<IFocusTargetAbsenceNotification>(n => n.Notify());
-                return;
-            }
-
-            _focusTargetContainer ??= focusTargetContainer;
-            _focusTargetContainer.Target = _gridController.GridContent.SelectedHero?.MovingObject.transform;
-        }
-
-        void ITargetChangeNotification.OnTargetChange(IGridMovable movable) {
-            if (_focusTargetContainer != null)
-                _focusTargetContainer.Target = movable.MovingObject.transform;
         }
     }
 }
